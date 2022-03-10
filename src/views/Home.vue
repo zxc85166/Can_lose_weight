@@ -1,4 +1,26 @@
 <script setup>
+import { initializeApp } from "firebase/app";
+import { getFirestore, collection, getDocs } from "@firebase/firestore";
+import { reactive } from 'vue'
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDkm-edZzl3gWJPiCOLFCrdgZY_61oFCmI",
+  authDomain: "can-lose-weight-11cc7.firebaseapp.com",
+  projectId: "can-lose-weight-11cc7",
+  storageBucket: "can-lose-weight-11cc7.appspot.com",
+  messagingSenderId: "106861088590",
+  appId: "1:106861088590:web:4e6f32fdbe7fbf702b181f",
+  measurementId: "G-JH8RZ4FV9Z"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+const usersCollection = collection(db, "users");
+const data = await getDocs(usersCollection);
+const me = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+console.log(me)
 </script>
 
 <template>
@@ -20,6 +42,7 @@
           </label>
         </div>
       </h2>
+      <div>{{ me }}</div>
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
         <div class="inline-flex rounded-md shadow">
           <router-link
@@ -27,6 +50,7 @@
             class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-5 py-3 text-base font-medium leading-6 text-white transition duration-150 ease-in-out hover:bg-indigo-500 focus:outline-none"
           >Next Page</router-link>
         </div>
+        <button class="btn">按我新增</button>
       </div>
     </div>
   </div>
