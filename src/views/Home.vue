@@ -1,9 +1,19 @@
 <script setup>
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, getDocs } from "@firebase/firestore";
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+} from "@firebase/firestore";
 import { onMounted, ref } from "vue";
 
+// 取出後物品
 const state = ref(null);
+//憑證
 const firebaseConfig = {
   apiKey: "AIzaSyDkm-edZzl3gWJPiCOLFCrdgZY_61oFCmI",
   authDomain: "can-lose-weight-11cc7.firebaseapp.com",
@@ -19,12 +29,33 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const usersCollection = collection(db, "users");
-onMounted(async () => {
+onMounted(() => {
+  getData();
+});
+//抓取資料
+const getData = async () => {
   const data = await getDocs(usersCollection);
   const me = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   state.value = me;
-});
-// 取出後物品
+};
+//輸入
+const createUser = async () => {
+  await addDoc(usersCollection, { name: "sss", age: Number(10) });
+  getData();
+};
+//更新
+const updateUser = async (id, age) => {
+  const userDoc = doc(db, "users", id);
+  const newFields = { age: age + 1 };
+  await updateDoc(userDoc, newFields);
+  getData();
+};
+//刪除
+const deleteUser = async (id) => {
+  const userDoc = doc(db, "users", id);
+  await deleteDoc(userDoc);
+  getData();
+};
 </script>
 
 <template>
@@ -59,13 +90,15 @@ onMounted(async () => {
             >Next Page</router-link
           >
         </div>
-        <button class="btn">按我新增</button>
+        <button @click="createUser" class="btn">按我新增</button>
       </div>
     </div>
     <div v-for="i in state">
-      <h1>{{ i.age }}</h1>
-      <h1>{{ i.id }}</h1>
-      <h1>{{ i.name }}</h1>
+      <h1>姓名: {{ i.name }}</h1>
+      <h1>年齡: {{ i.age }}</h1>
+      <h1>ID: {{ i.id }}</h1>
+      <button @click="updateUser(i.id, i.age)" class="btn">增加 Age</button>
+      <button @click="deleteUser(i.id)" class="btn">刪除</button>
     </div>
   </div>
 </template>
