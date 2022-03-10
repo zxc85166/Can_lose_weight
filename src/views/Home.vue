@@ -1,8 +1,9 @@
 <script setup>
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, getDocs } from "@firebase/firestore";
-import { reactive } from 'vue'
+import { onMounted, ref } from "vue";
 
+const state = ref(null);
 const firebaseConfig = {
   apiKey: "AIzaSyDkm-edZzl3gWJPiCOLFCrdgZY_61oFCmI",
   authDomain: "can-lose-weight-11cc7.firebaseapp.com",
@@ -10,7 +11,7 @@ const firebaseConfig = {
   storageBucket: "can-lose-weight-11cc7.appspot.com",
   messagingSenderId: "106861088590",
   appId: "1:106861088590:web:4e6f32fdbe7fbf702b181f",
-  measurementId: "G-JH8RZ4FV9Z"
+  measurementId: "G-JH8RZ4FV9Z",
 };
 
 // Initialize Firebase
@@ -18,9 +19,12 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 const usersCollection = collection(db, "users");
-const data = await getDocs(usersCollection);
-const me = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-console.log(me)
+onMounted(async () => {
+  const data = await getDocs(usersCollection);
+  const me = data.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+  state.value = me;
+});
+// 取出後物品
 </script>
 
 <template>
@@ -37,7 +41,11 @@ console.log(me)
           </label>
           <label class="input-group input-group-lg">
             <!-- <span>Price</span> -->
-            <input type="text" placeholder="100" class="input input-bordered input-group-xs" />
+            <input
+              type="text"
+              placeholder="100"
+              class="input input-bordered input-group-xs"
+            />
             <span>秒</span>
           </label>
         </div>
@@ -48,10 +56,16 @@ console.log(me)
           <router-link
             to="/about"
             class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-5 py-3 text-base font-medium leading-6 text-white transition duration-150 ease-in-out hover:bg-indigo-500 focus:outline-none"
-          >Next Page</router-link>
+            >Next Page</router-link
+          >
         </div>
         <button class="btn">按我新增</button>
       </div>
+    </div>
+    <div v-for="i in state">
+      <h1>{{ i.age }}</h1>
+      <h1>{{ i.id }}</h1>
+      <h1>{{ i.name }}</h1>
     </div>
   </div>
 </template>
