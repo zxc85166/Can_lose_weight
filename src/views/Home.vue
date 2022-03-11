@@ -9,7 +9,7 @@ import {
   deleteDoc,
   doc,
 } from "@firebase/firestore";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 
 // 取出後物品
 const state = ref(null);
@@ -65,6 +65,7 @@ const deleteUser = async (id) => {
   await deleteDoc(userDoc);
   getData();
 };
+
 </script>
 
 <template>
@@ -72,32 +73,40 @@ const deleteUser = async (id) => {
     <div
       class="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8"
     >
-      <div class="flex gap-3">
-        <input
-          type="text"
-          placeholder="姓名"
-          v-model="newName"
-          class="input input-bordered w-20 max-w-xs text-center"
-        />
-        <input
-          type="text"
-          placeholder="年齡"
-          v-model="newAge"
-          class="input input-bordered w-20 max-w-xs text-center"
-        />
-        <input
-          type="text"
-          placeholder="身高"
-          v-model="newHeight"
-          class="input input-bordered w-20 max-w-xs text-center"
-        />
-        <input
-          type="text"
-          placeholder="體重"
-          v-model="newWeight"
-          class="input input-bordered w-20 max-w-xs text-center"
-        />
+      <div class="form-control">
+        <label class="label">
+          <span class="label-text font-bold text-xl">填入要新增的資訊</span>
+        </label>
+        <label class="input-group">
+          <div class="flex gap-2">
+            <input
+              type="text"
+              placeholder="姓名"
+              v-model="newName"
+              class="input input-bordered w-20 max-w-xs text-center"
+            />
+            <input
+              type="text"
+              placeholder="年齡"
+              v-model="newAge"
+              class="input input-bordered w-20 max-w-xs text-center"
+            />
+            <input
+              type="text"
+              placeholder="身高"
+              v-model="newHeight"
+              class="input input-bordered w-20 max-w-xs text-center"
+            />
+            <input
+              type="text"
+              placeholder="體重"
+              v-model="newWeight"
+              class="input input-bordered w-20 max-w-xs text-center"
+            />
+          </div>
+        </label>
       </div>
+
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
         <div class="inline-flex rounded-md shadow">
           <!-- <router-link
