@@ -1,6 +1,6 @@
 <script setup>
+import { useStore } from "@/store/store.js";
 import { initializeApp } from "firebase/app";
-import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -12,6 +12,7 @@ import {
 } from "@firebase/firestore";
 import { onMounted, ref } from "vue";
 
+const store = useStore();
 // 取出後物品
 const state = ref(null);
 //使用者填入的新增資料
@@ -19,32 +20,6 @@ const newName = ref(null);
 const newDate = ref(null);
 const newHeight = ref(null);
 const newWeight = ref(null);
-
-//google登入
-const signInWithGoogle = () => {
-  const provider = new GoogleAuthProvider();
-  signInWithPopup(getAuth(), provider)
-    .then((result) => {
-      // This gives you a Google Access Token. You can use it to access the Google API.
-      const credential = GoogleAuthProvider.credentialFromResult(result);
-      const token = credential.accessToken;
-      // The signed-in user info.
-      const user = result.user;
-      // ...
-      console.log(user, token);
-    })
-    .catch((error) => {
-      // Handle Errors here.
-      const errorCode = error.code;
-      const errorMessage = error.message;
-      // The email of the user's account used.
-      const email = error.email;
-      // The AuthCredential type that was used.
-      const credential = GoogleAuthProvider.credentialFromError(error);
-      // ...
-      console.log(errorCode, errorMessage, email, credential);
-    });
-};
 
 //憑證
 const firebaseConfig = {
@@ -102,14 +77,19 @@ const deleteUser = async (id) => {
 <template>
   <div class="bg-blue-50">
     <div
-      class="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8"
+      class="mx-auto max-w-screen-xl px-4 py-6 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-8 lg:px-8"
     >
-      <div class="mx-auto">
+      <div class="mx-auto grid place-items-center">
         <label class="label">
           <span class="label-text text-xl font-bold">填入要新增的資訊</span>
         </label>
-        <div class="grid grid-flow-col gap-2">
-          <el-input type="text" placeholder="姓名" v-model="newName" />
+        <div class="grid gap-2 lg:grid-flow-col">
+          <el-input
+            type="text"
+            placeholder="姓名"
+            v-model="newName"
+            class="w-fit"
+          />
           <el-date-picker
             v-model="newDate"
             type="date"
@@ -119,24 +99,22 @@ const deleteUser = async (id) => {
           />
           <el-input type="text" placeholder="身高" v-model="newHeight" />
           <el-input type="text" placeholder="體重" v-model="newWeight" />
-          <el-button type="primary" @click="createUser">新增</el-button>
-          <el-button
-            color="#626aef"
-            style="color: white"
-            @click="signInWithGoogle"
-            >登入</el-button
-          >
+          <div class="flex justify-end">
+            <el-button type="primary" @click="createUser" class="w-fit"
+              >新增</el-button
+            >
+          </div>
         </div>
       </div>
     </div>
   </div>
   <div>
     <div class="overflow-x-auto">
-      <table class="table w-full">
+      <table class="table-normal table w-full">
         <!-- head -->
         <thead>
           <tr>
-            <th>姓名</th>
+            <th></th>
             <th>日期</th>
             <th>身高</th>
             <th>體重</th>
@@ -158,18 +136,18 @@ const deleteUser = async (id) => {
             </td>
             <td>
               <el-input
+                style="width: 55px"
                 type="text"
                 v-model="i.height"
-                placeholder="空白"
-                class="w-20 max-w-xs"
+                placeholder="無資料"
               />
             </td>
             <td>
               <el-input
+                style="width: 55px"
                 type="text"
                 v-model="i.weight"
-                placeholder="空白"
-                class="w-20 max-w-xs"
+                placeholder="無資料"
               />
             </td>
             <td>
