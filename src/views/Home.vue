@@ -15,7 +15,7 @@ import { onMounted, ref, computed } from "vue";
 const state = ref(null);
 //使用者填入的新增資料
 const newName = ref(null);
-const newAge = ref(null);
+const newDate = ref(null);
 const newHeight = ref(null);
 const newWeight = ref(null);
 
@@ -45,17 +45,22 @@ const getData = async () => {
 };
 //輸入
 const createUser = async () => {
-  await addDoc(usersCollection, { name: newName.value, age: Number(newAge.value), height: Number(newHeight.value), weight: Number(newWeight.value) });
+  await addDoc(usersCollection, {
+    name: newName.value,
+    date: newDate.value,
+    height: Number(newHeight.value),
+    weight: Number(newWeight.value),
+  });
   newName.value = null;
-  newAge.value = null;
+  newDate.value = null;
   newHeight.value = null;
   newWeight.value = null;
   getData();
 };
 //修改
-const updateUser = async (id, age, height, weight) => {
+const updateUser = async (id, date, height, weight) => {
   const userDoc = doc(db, "users", id);
-  const newFields = { age: age, height: height, weight: weight };
+  const newFields = { date: date, height: height, weight: weight };
   await updateDoc(userDoc, newFields);
   getData();
 };
@@ -65,7 +70,6 @@ const deleteUser = async (id) => {
   await deleteDoc(userDoc);
   getData();
 };
-
 </script>
 
 <template>
@@ -75,36 +79,38 @@ const deleteUser = async (id) => {
     >
       <div class="form-control">
         <label class="label">
-          <span class="label-text font-bold text-xl">填入要新增的資訊</span>
+          <span class="label-text text-xl font-bold">填入要新增的資訊</span>
         </label>
-        <label class="input-group">
-          <div class="flex gap-2">
-            <input
-              type="text"
-              placeholder="姓名"
-              v-model="newName"
-              class="input input-bordered w-20 max-w-xs text-center"
-            />
-            <input
-              type="text"
-              placeholder="年齡"
-              v-model="newAge"
-              class="input input-bordered w-20 max-w-xs text-center"
-            />
-            <input
-              type="text"
-              placeholder="身高"
-              v-model="newHeight"
-              class="input input-bordered w-20 max-w-xs text-center"
-            />
-            <input
-              type="text"
-              placeholder="體重"
-              v-model="newWeight"
-              class="input input-bordered w-20 max-w-xs text-center"
-            />
-          </div>
-        </label>
+        <div class="flex gap-2">
+          <input
+            type="text"
+            placeholder="姓名"
+            v-model="newName"
+            class="input input-bordered w-20 max-w-xs text-center"
+          />
+
+          <el-date-picker
+            v-model="newDate"
+            type="date"
+            placeholder="選擇日期"
+            format="YYYY/MM/DD"
+            value-format="YYYY-MM-DD"
+            class="input input-bordered w-20 max-w-xs place-items-center text-center"
+          />
+
+          <input
+            type="text"
+            placeholder="身高"
+            v-model="newHeight"
+            class="input input-bordered w-20 max-w-xs text-center"
+          />
+          <input
+            type="text"
+            placeholder="體重"
+            v-model="newWeight"
+            class="input input-bordered w-20 max-w-xs text-center"
+          />
+        </div>
       </div>
 
       <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
@@ -125,7 +131,7 @@ const deleteUser = async (id) => {
         <thead>
           <tr>
             <th>姓名</th>
-            <th>年齡</th>
+            <th>日期</th>
             <th>身高</th>
             <th>體重</th>
             <th>操作</th>
@@ -136,10 +142,12 @@ const deleteUser = async (id) => {
           <tr v-for="i in state" class="hover">
             <td>{{ i.name }}</td>
             <td>
-              <input
-                type="text"
-                v-model="i.age"
-                class="input input-bordered input-info input-sm w-11 max-w-xs"
+              <el-date-picker
+                v-model="i.date"
+                type="date"
+                placeholder="選擇日期"
+                format="YYYY/MM/DD"
+                value-format="YYYY-MM-DD"
               />
             </td>
             <td>
@@ -158,10 +166,17 @@ const deleteUser = async (id) => {
             </td>
             <td>
               <button
-                @click="updateUser(i.id, i.age, i.height, i.weight)"
+                @click="updateUser(i.id, i.date, i.height, i.weight)"
                 class="btn btn-outline btn-success mr-3"
-              >修改</button>
-              <button @click="deleteUser(i.id)" class="btn btn-outline btn-warning">刪除</button>
+              >
+                修改
+              </button>
+              <button
+                @click="deleteUser(i.id)"
+                class="btn btn-outline btn-warning"
+              >
+                刪除
+              </button>
             </td>
           </tr>
         </tbody>
