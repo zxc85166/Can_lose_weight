@@ -1,5 +1,6 @@
 <script setup>
 import { initializeApp } from "firebase/app";
+import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import {
   getFirestore,
   collection,
@@ -9,7 +10,7 @@ import {
   deleteDoc,
   doc,
 } from "@firebase/firestore";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref } from "vue";
 
 // 取出後物品
 const state = ref(null);
@@ -18,6 +19,32 @@ const newName = ref(null);
 const newDate = ref(null);
 const newHeight = ref(null);
 const newWeight = ref(null);
+
+//google登入
+const signInWithGoogle = () => {
+  const provider = new GoogleAuthProvider();
+  signInWithPopup(getAuth(), provider)
+    .then((result) => {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const credential = GoogleAuthProvider.credentialFromResult(result);
+      const token = credential.accessToken;
+      // The signed-in user info.
+      const user = result.user;
+      // ...
+      console.log(user, token);
+    })
+    .catch((error) => {
+      // Handle Errors here.
+      const errorCode = error.code;
+      const errorMessage = error.message;
+      // The email of the user's account used.
+      const email = error.email;
+      // The AuthCredential type that was used.
+      const credential = GoogleAuthProvider.credentialFromError(error);
+      // ...
+      console.log(errorCode, errorMessage, email, credential);
+    });
+};
 
 //憑證
 const firebaseConfig = {
@@ -77,54 +104,33 @@ const deleteUser = async (id) => {
     <div
       class="mx-auto max-w-screen-xl px-4 py-12 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-16 lg:px-8"
     >
-      <div class="form-control">
+      <div class="mx-auto">
         <label class="label">
           <span class="label-text text-xl font-bold">填入要新增的資訊</span>
         </label>
-        <div class="flex gap-2">
-          <input
-            type="text"
-            placeholder="姓名"
-            v-model="newName"
-            class="input input-bordered w-20 max-w-xs text-center"
-          />
-
+        <div class="grid grid-flow-col gap-2">
+          <el-input type="text" placeholder="姓名" v-model="newName" />
           <el-date-picker
             v-model="newDate"
             type="date"
-            placeholder="選擇日期"
             format="YYYY/MM/DD"
             value-format="YYYY-MM-DD"
-            class="input input-bordered w-20 max-w-xs place-items-center text-center"
+            placeholder="選擇日期"
           />
-
-          <input
-            type="text"
-            placeholder="身高"
-            v-model="newHeight"
-            class="input input-bordered w-20 max-w-xs text-center"
-          />
-          <input
-            type="text"
-            placeholder="體重"
-            v-model="newWeight"
-            class="input input-bordered w-20 max-w-xs text-center"
-          />
+          <el-input type="text" placeholder="身高" v-model="newHeight" />
+          <el-input type="text" placeholder="體重" v-model="newWeight" />
+          <el-button type="primary" @click="createUser">新增</el-button>
+          <el-button
+            color="#626aef"
+            style="color: white"
+            @click="signInWithGoogle"
+            >登入</el-button
+          >
         </div>
-      </div>
-
-      <div class="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-        <div class="inline-flex rounded-md shadow">
-          <!-- <router-link
-            to="/about"
-            class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-5 py-3 text-base font-medium leading-6 text-white transition duration-150 ease-in-out hover:bg-indigo-500 focus:outline-none"
-          >Next Page</router-link>-->
-        </div>
-        <button @click="createUser" class="btn">新增</button>
       </div>
     </div>
   </div>
-  <div class="mx-5">
+  <div>
     <div class="overflow-x-auto">
       <table class="table w-full">
         <!-- head -->
@@ -151,32 +157,31 @@ const deleteUser = async (id) => {
               />
             </td>
             <td>
-              <input
+              <el-input
                 type="text"
                 v-model="i.height"
-                class="input input-bordered input-info input-sm w-14 max-w-xs"
+                placeholder="空白"
+                class="w-20 max-w-xs"
               />
             </td>
             <td>
-              <input
+              <el-input
                 type="text"
                 v-model="i.weight"
-                class="input input-bordered input-info input-sm w-14 max-w-xs"
+                placeholder="空白"
+                class="w-20 max-w-xs"
               />
             </td>
             <td>
-              <button
+              <el-button
+                type="success"
                 @click="updateUser(i.id, i.date, i.height, i.weight)"
-                class="btn btn-outline btn-success mr-3"
               >
                 修改
-              </button>
-              <button
-                @click="deleteUser(i.id)"
-                class="btn btn-outline btn-warning"
-              >
+              </el-button>
+              <el-button type="danger" @click="deleteUser(i.id)">
                 刪除
-              </button>
+              </el-button>
             </td>
           </tr>
         </tbody>
