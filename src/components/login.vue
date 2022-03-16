@@ -1,8 +1,10 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useStore } from "@/store/store.js";
+import { useRouter } from "vue-router";
 
+const router = useRouter();
 const store = useStore();
 onMounted(() => {
 
@@ -17,10 +19,10 @@ const signInWithGoogle = () => {
       const token = credential.accessToken;
       // The signed-in user info.
       const user = result.user;
-      // ...
       console.log(user);
       store.UserName = user.displayName;
       store.PhotoURL = user.photoURL;
+      store.UserEmail = user.email;
     })
     .catch((error) => {
       // Handle Errors here.
@@ -43,11 +45,34 @@ const signInWithGoogle = () => {
       style="color: white"
       @click="signInWithGoogle"
     >登入</el-button>
-    <div v-if="store.PhotoURL" class="avatar online">
-      <div class="w-12 rounded-full">
-        <img :src="store.PhotoURL" />
+    <div class="dropdown dropdown-hover dropdown-end">
+      <div v-if="store.PhotoURL" class="avatar online">
+        <div class="w-12 rounded-full">
+          <img :src="store.PhotoURL" />
+        </div>
       </div>
+      <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+        <li>
+          <a>{{ store.UserName }}</a>
+        </li>
+        <li>
+          <el-button
+            v-if="store.PhotoURL"
+            color="#626aef"
+            style="color: white"
+            @click="store.clear"
+          >登出</el-button>
+        </li>
+      </ul>
     </div>
-    <el-button v-if="store.PhotoURL" color="#626aef" style="color: white" @click="store.clear">登出</el-button>
+
+    <el-dropdown>
+      <template #dropdown>
+        <el-dropdown-menu>
+          <el-dropdown-item>{{ store.UserName }}</el-dropdown-item>
+          <el-dropdown-item divided></el-dropdown-item>
+        </el-dropdown-menu>
+      </template>
+    </el-dropdown>
   </div>
 </template>

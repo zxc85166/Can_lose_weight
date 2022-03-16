@@ -6,6 +6,7 @@ export const useStore = defineStore({
   // state: 返回函數
   state: () => ({
     UserName: "登入",
+    UserEmail: "jimmya011@gmail.com",
     PhotoURL: "",
   }),
   actions: {
