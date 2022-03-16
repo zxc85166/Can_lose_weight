@@ -4,7 +4,7 @@ import login from "@/components/login.vue";
 
 <template>
   <div>
-    <header class="flex w-full justify-end bg-blue-50 px-2 py-2">
+    <header class="w-full bg-blue-50 px-2 py-2">
       <login />
     </header>
     <main>

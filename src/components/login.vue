@@ -4,9 +4,8 @@ import { getAuth, signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { useStore } from "@/store/store.js";
 
 const store = useStore();
-const userPhoto = ref(null);
 onMounted(() => {
-  userPhoto.value = store.userPhoto;
+
 });
 //google登入
 const signInWithGoogle = () => {
@@ -37,26 +36,18 @@ const signInWithGoogle = () => {
 };
 </script>
 <template>
-  <div>
+  <div class="flex justify-end">
     <el-button
       v-if="!store.PhotoURL"
       color="#626aef"
       style="color: white"
       @click="signInWithGoogle"
-      >登入
-    </el-button>
-
-    <div v-else="userPhoto" class="avatar online">
+    >登入</el-button>
+    <div v-if="store.PhotoURL" class="avatar online">
       <div class="w-12 rounded-full">
-        <img :src="userPhoto" />
+        <img :src="store.PhotoURL" />
       </div>
     </div>
-    <el-button
-      v-else="store.PhotoURL"
-      color="#626aef"
-      style="color: white"
-      @click="store.clear"
-      >登出
-    </el-button>
+    <el-button v-if="store.PhotoURL" color="#626aef" style="color: white" @click="store.clear">登出</el-button>
   </div>
 </template>
