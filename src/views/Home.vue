@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import { useStore } from "@/store/store.js";
 import { initializeApp } from "firebase/app";
 import {
@@ -12,11 +12,7 @@ import {
   doc,
 } from "@firebase/firestore";
 
-
 const store = useStore();
-
-// 取出後物品
-const state = ref(null);
 //使用者填入的新增資料
 const newName = ref(null);
 const newDate = ref(null);
@@ -37,19 +33,21 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const usersCollection = collection(db, store.UserEmail);
 onMounted(() => {
+  getData();
+});
+store.$subscribe(() => {
   getData();
 });
 //抓取資料
 const getData = async () => {
-  const datas = await getDocs(usersCollection);
+  const datas = await getDocs(collection(db, store.UserEmail));
   const data = datas.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
-  state.value = data;
+  store.UserData = data;
 };
 //輸入
 const createUser = async () => {
-  await addDoc(usersCollection, {
+  await addDoc(collection(db, store.UserEmail), {
     name: newName.value,
     date: newDate.value,
     height: Number(newHeight.value),
@@ -79,14 +77,19 @@ const deleteUser = async (id) => {
 <template>
   <div class="bg-blue-50">
     <div
-      class="mx-auto max-w-screen-xl px-4 pb-6 sm:px-6 lg:flex lg:items-center lg:justify-between lg:pb-8 lg:px-8"
+      class="mx-auto max-w-screen-xl px-4 pb-6 sm:px-6 lg:flex lg:items-center lg:justify-between lg:px-8 lg:pb-8"
     >
       <div class="mx-auto grid place-items-center">
         <label class="label">
           <span class="label-text text-xl font-bold">填入要新增的資訊</span>
         </label>
         <div class="grid gap-2 lg:grid-flow-col">
-          <el-input type="text" placeholder="姓名" v-model="newName" class="w-fit" />
+          <el-input
+            type="text"
+            placeholder="姓名"
+            v-model="newName"
+            class="w-fit"
+          />
           <el-date-picker
             v-model="newDate"
             type="date"
@@ -97,7 +100,9 @@ const deleteUser = async (id) => {
           <el-input type="text" placeholder="身高" v-model="newHeight" />
           <el-input type="text" placeholder="體重" v-model="newWeight" />
           <div class="flex justify-end">
-            <el-button type="primary" @click="createUser" class="w-fit">新增</el-button>
+            <el-button type="primary" @click="createUser" class="w-fit"
+              >新增</el-button
+            >
           </div>
         </div>
       </div>
@@ -118,7 +123,7 @@ const deleteUser = async (id) => {
         </thead>
         <tbody>
           <!-- row 1 -->
-          <tr v-for="i in state" class="hover">
+          <tr v-for="i in store.UserData" class="hover">
             <td>{{ i.name }}</td>
             <td>
               <el-date-picker
@@ -130,14 +135,30 @@ const deleteUser = async (id) => {
               />
             </td>
             <td>
-              <el-input style="width: 55px" type="text" v-model="i.height" placeholder="無" />
+              <el-input
+                style="width: 55px"
+                type="text"
+                v-model="i.height"
+                placeholder="無"
+              />
             </td>
             <td>
-              <el-input style="width: 55px" type="text" v-model="i.weight" placeholder="無" />
+              <el-input
+                style="width: 55px"
+                type="text"
+                v-model="i.weight"
+                placeholder="無"
+              />
             </td>
             <td>
-              <el-button type="success" @click="updateUser(i.id, i.date, i.height, i.weight)">修改</el-button>
-              <el-button type="danger" @click="deleteUser(i.id)">刪除</el-button>
+              <el-button
+                type="success"
+                @click="updateUser(i.id, i.date, i.height, i.weight)"
+                >修改</el-button
+              >
+              <el-button type="danger" @click="deleteUser(i.id)"
+                >刪除</el-button
+              >
             </td>
           </tr>
         </tbody>

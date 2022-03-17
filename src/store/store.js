@@ -8,11 +8,16 @@ export const useStore = defineStore({
     UserName: "登入",
     UserEmail: "jimmya011@gmail.com",
     PhotoURL: "",
+    //儲存取得資料
+    UserData: {},
   }),
   actions: {
     clear() {
       this.PhotoURL = "";
     },
+  },
+  getters: {
+    doubleCount: (state) => state.counter * 2,
   },
   // 開啟資料快取
   persist: {
