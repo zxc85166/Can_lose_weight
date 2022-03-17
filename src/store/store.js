@@ -6,18 +6,26 @@ export const useStore = defineStore({
   // state: 返回函數
   state: () => ({
     UserName: "登入",
-    UserEmail: "jimmya011@gmail.com",
+    UserEmail: "",
     PhotoURL: "",
     //儲存取得資料
-    UserData: {},
+    UserData: "",
   }),
+  getters: {
+    // doubleCount: (state) => state.counter * 2,
+  },
   actions: {
     clear() {
+      //清空
+      this.UserName = "登入";
+      this.UserEmail = "";
       this.PhotoURL = "";
+      this.UserData = "";
     },
-  },
-  getters: {
-    doubleCount: (state) => state.counter * 2,
+    //設定UserEmail
+    setUserEmail(email) {
+      this.UserEmail = email;
+    },
   },
   // 開啟資料快取
   persist: {

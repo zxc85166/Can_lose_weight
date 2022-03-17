@@ -6,9 +6,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const store = useStore();
-onMounted(() => {
-
-});
+onMounted(() => {});
 //google登入
 const signInWithGoogle = () => {
   const provider = new GoogleAuthProvider();
@@ -19,10 +17,9 @@ const signInWithGoogle = () => {
       const token = credential.accessToken;
       // The signed-in user info.
       const user = result.user;
-      console.log(user);
       store.UserName = user.displayName;
       store.PhotoURL = user.photoURL;
-      store.UserEmail = user.email;
+      store.setUserEmail(user.email);
     })
     .catch((error) => {
       // Handle Errors here.
@@ -44,14 +41,18 @@ const signInWithGoogle = () => {
       color="#626aef"
       style="color: white"
       @click="signInWithGoogle"
-    >登入</el-button>
+      >登入</el-button
+    >
     <div class="dropdown dropdown-hover dropdown-end">
       <div v-if="store.PhotoURL" class="avatar online">
         <div class="w-12 rounded-full">
           <img :src="store.PhotoURL" />
         </div>
       </div>
-      <ul tabindex="0" class="dropdown-content menu p-2 shadow bg-base-100 rounded-box w-40">
+      <ul
+        tabindex="0"
+        class="dropdown-content menu bg-base-100 rounded-box w-40 p-2 shadow"
+      >
         <li>
           <a>{{ store.UserName }}</a>
         </li>
@@ -61,7 +62,8 @@ const signInWithGoogle = () => {
             color="#626aef"
             style="color: white"
             @click="store.clear"
-          >登出</el-button>
+            >登出</el-button
+          >
         </li>
       </ul>
     </div>

@@ -36,8 +36,27 @@ const db = getFirestore(app);
 onMounted(() => {
   getData();
 });
-store.$subscribe(() => {
-  getData();
+const unsubscribe = store.$onAction(({ name, after, onError }) => {
+  if (name === "setUserEmail") {
+    const startTime = Date.now();
+    // after 會在 action 調用完全返回後才執行
+    // 會等待所有回傳的 promise
+    after((result) => {
+      getData();
+      // console.log(
+      //   `Finished "${name}" after ${
+      //     Date.now() - startTime
+      //   }ms.\nResult: ${result}.`
+      // );
+    });
+
+    // onError 會在 action 報錯時調用
+    onError((error) => {
+      console.warn(
+        `Failed "${name}" after ${Date.now() - startTime}ms.\nError: ${error}.`
+      );
+    });
+  }
 });
 //抓取資料
 const getData = async () => {
