@@ -6,7 +6,7 @@ import { useRouter } from "vue-router";
 
 const router = useRouter();
 const store = useStore();
-onMounted(() => {});
+onMounted(() => { });
 //google登入
 const signInWithGoogle = () => {
   const provider = new GoogleAuthProvider();
@@ -41,8 +41,7 @@ const signInWithGoogle = () => {
       color="#626aef"
       style="color: white"
       @click="signInWithGoogle"
-      >登入</el-button
-    >
+    >google 登入</el-button>
     <div class="dropdown dropdown-hover dropdown-end">
       <div v-if="store.PhotoURL" class="avatar online">
         <div class="w-12 rounded-full">
@@ -51,7 +50,7 @@ const signInWithGoogle = () => {
       </div>
       <ul
         tabindex="0"
-        class="dropdown-content menu bg-base-100 rounded-box w-40 p-2 shadow"
+        class="dropdown-content menu bg-base-100 rounded-box p-2 shadow whitespace-nowrap"
       >
         <li>
           <a>{{ store.UserName }}</a>
@@ -62,8 +61,7 @@ const signInWithGoogle = () => {
             color="#626aef"
             style="color: white"
             @click="store.clear"
-            >登出</el-button
-          >
+          >登出</el-button>
         </li>
       </ul>
     </div>

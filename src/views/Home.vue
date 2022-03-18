@@ -14,7 +14,7 @@ import {
 
 const store = useStore();
 //使用者填入的新增資料
-const newName = ref(null);
+const newNote = ref(null);
 const newDate = ref(null);
 const newHeight = ref(null);
 const newWeight = ref(null);
@@ -49,7 +49,6 @@ const unsubscribe = store.$onAction(({ name, after, onError }) => {
       //   }ms.\nResult: ${result}.`
       // );
     });
-
     // onError 會在 action 報錯時調用
     onError((error) => {
       console.warn(
@@ -63,31 +62,41 @@ const getData = async () => {
   const datas = await getDocs(collection(db, store.UserEmail));
   const data = datas.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
   store.UserData = data;
+  if (data == "") {
+    initializeUser();
+    console.log(data);
+  }
 };
+
 //輸入
 const createUser = async () => {
   await addDoc(collection(db, store.UserEmail), {
-    name: newName.value,
+    note: newNote.value,
     date: newDate.value,
     height: Number(newHeight.value),
     weight: Number(newWeight.value),
   });
-  newName.value = null;
+  newNote.value = null;
   newDate.value = null;
   newHeight.value = null;
   newWeight.value = null;
   getData();
 };
 //修改
-const updateUser = async (id, date, height, weight) => {
-  const userDoc = doc(db, "users", id);
-  const newFields = { date: date, height: height, weight: weight };
+const updateUser = async (id, date, height, weight, note) => {
+  const userDoc = doc(db, store.UserEmail, id);
+  const newFields = { date: date, height: height, weight: weight, note: note };
   await updateDoc(userDoc, newFields);
   getData();
 };
+//進出編輯狀態
+const editStatus = ref(false);
+const editOrNot = () => {
+  editStatus.value = !editStatus.value;
+}
 //刪除
 const deleteUser = async (id) => {
-  const userDoc = doc(db, "users", id);
+  const userDoc = doc(db, store.UserEmail, id);
   await deleteDoc(userDoc);
   getData();
 };
@@ -103,12 +112,6 @@ const deleteUser = async (id) => {
           <span class="label-text text-xl font-bold">填入要新增的資訊</span>
         </label>
         <div class="grid gap-2 lg:grid-flow-col">
-          <el-input
-            type="text"
-            placeholder="姓名"
-            v-model="newName"
-            class="w-fit"
-          />
           <el-date-picker
             v-model="newDate"
             type="date"
@@ -116,12 +119,11 @@ const deleteUser = async (id) => {
             value-format="YYYY-MM-DD"
             placeholder="選擇日期"
           />
+          <el-input type="text" placeholder="小筆記" v-model="newNote" class="w-fit" />
           <el-input type="text" placeholder="身高" v-model="newHeight" />
           <el-input type="text" placeholder="體重" v-model="newWeight" />
           <div class="flex justify-end">
-            <el-button type="primary" @click="createUser" class="w-fit"
-              >新增</el-button
-            >
+            <el-button type="primary" @click="createUser" class="w-fit">新增</el-button>
           </div>
         </div>
       </div>
@@ -129,12 +131,12 @@ const deleteUser = async (id) => {
   </div>
   <div>
     <div class="overflow-x-auto">
-      <table class="table-normal table w-full">
+      <table class="table table-normal w-full">
         <!-- head -->
         <thead>
           <tr>
-            <th></th>
-            <th>日期</th>
+            <th>日期(舊到新排序)</th>
+            <th>小筆記</th>
             <th>身高</th>
             <th>體重</th>
             <th>操作</th>
@@ -142,11 +144,13 @@ const deleteUser = async (id) => {
         </thead>
         <tbody>
           <!-- row 1 -->
-          <tr v-for="i in store.UserData" class="hover">
-            <td>{{ i.name }}</td>
+
+          <tr v-for="item in store.sortUserData" :key="item.date" class="hover">
             <td>
+              <p v-if="!editStatus">{{ item.date }}</p>
               <el-date-picker
-                v-model="i.date"
+                v-if="editStatus"
+                v-model="item.date"
                 type="date"
                 placeholder="選擇日期"
                 format="YYYY/MM/DD"
@@ -154,34 +158,57 @@ const deleteUser = async (id) => {
               />
             </td>
             <td>
+              <p v-if="!editStatus">{{ item.note }}</p>
               <el-input
-                style="width: 55px"
+                v-if="editStatus"
+                class="max-w-fit"
                 type="text"
-                v-model="i.height"
+                v-model="item.note"
                 placeholder="無"
               />
             </td>
             <td>
+              <p v-if="!editStatus">{{ item.height }}</p>
               <el-input
+                v-if="editStatus"
                 style="width: 55px"
                 type="text"
-                v-model="i.weight"
+                v-model="item.height"
                 placeholder="無"
               />
             </td>
             <td>
+              <p v-if="!editStatus">{{ item.weight }}</p>
+              <el-input
+                v-if="editStatus"
+                style="width: 55px"
+                type="text"
+                v-model="item.weight"
+                placeholder="無"
+              />
+            </td>
+            <td>
+              <el-button v-if="!editStatus" type="success" @click="editOrNot()">修改</el-button>
               <el-button
+                v-if="editStatus"
                 type="success"
-                @click="updateUser(i.id, i.date, i.height, i.weight)"
-                >修改</el-button
-              >
-              <el-button type="danger" @click="deleteUser(i.id)"
-                >刪除</el-button
-              >
+                @click="updateUser(item.id, item.date, item.height, item.weight, item.note); editOrNot()"
+              >送出</el-button>
+              <el-button type="danger" @click="deleteUser(item.id)">刪除</el-button>
             </td>
           </tr>
         </tbody>
       </table>
+      <div
+        v-if="store.UserData.length == 0"
+        class="text-center pt-9 italic text-gray-400 font-bold"
+      >※無資料※</div>
     </div>
   </div>
 </template>
+<style>
+/* table */
+.table th:first-child {
+  position: relative;
+}
+</style>
