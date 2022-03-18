@@ -14,9 +14,11 @@ export const useStore = defineStore({
   getters: {
     //排序UserData 過去到未來
     sortUserData: (state) => {
-      return state.UserData.sort((a, b) => {
-        return a.date > b.date ? 1 : -1;
-      });
+      if (state.UserData) {
+        return state.UserData.sort((a, b) => {
+          return a.date > b.date ? 1 : -1;
+        });
+      }
     },
   },
   actions: {
