@@ -109,7 +109,22 @@ const deleteUser = async (id) => {
     >
       <div class="mx-auto grid place-items-center">
         <label class="label">
-          <span class="label-text text-xl font-bold">填入要新增的資訊</span>
+          <span class="label-text text-xl font-bold pr-5">運動紀錄表</span>
+          <!-- 說明用modal -->
+          <label for="my-modal-6" class="btn btn-sm modal-button">使用說明</label>
+
+          <!-- Put this part before </body> tag -->
+          <input type="checkbox" id="my-modal-6" class="modal-toggle" />
+          <div class="modal modal-bottom sm:modal-middle">
+            <div class="modal-box relative">
+              <h3 class="font-bold text-lg">每日紀錄運動成果，檢視進步及健康狀況</h3>
+              <li class="pt-4">最上方藍色方格新增資料</li>
+              <li>資料平時只可查看按下修改按鈕後可以編輯，完成編輯後按下送出便會發送至資料庫儲存</li>
+              <div class="modal-action">
+                <label for="my-modal-6" class="btn">關閉</label>
+              </div>
+            </div>
+          </div>
         </label>
         <div class="grid gap-2 lg:grid-flow-col">
           <el-date-picker
