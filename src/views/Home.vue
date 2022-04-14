@@ -2,6 +2,7 @@
 import { onMounted, ref } from "vue";
 import { useStore } from "@/store/store.js";
 import { initializeApp } from "firebase/app";
+import { ElMessage } from 'element-plus';
 import {
   getFirestore,
   collection,
@@ -34,6 +35,10 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 onMounted(() => {
+  if (!store.UserEmail) {
+    ElMessage.error('尚未登錄')
+    return;
+  }
   getData();
 });
 const unsubscribe = store.$onAction(({ name, after, onError }) => {
@@ -64,12 +69,16 @@ const getData = async () => {
   store.UserData = data;
   if (data == "") {
     initializeUser();
-    console.log(data);
+    // console.log(data);
   }
 };
 
 //輸入
 const createUser = async () => {
+  if (!store.UserEmail) {
+    ElMessage.error('尚未登錄')
+    return;
+  }
   await addDoc(collection(db, store.UserEmail), {
     note: newNote.value,
     date: newDate.value,
@@ -104,9 +113,7 @@ const deleteUser = async (id) => {
 
 <template>
   <div class="bg-blue-50">
-    <div
-      class="mx-auto max-w-screen-xl px-4 pb-6 sm:px-6 lg:flex lg:items-center lg:justify-between lg:px-8 lg:pb-8"
-    >
+    <div class="mx-auto max-w-screen-xl px-4 pb-6 sm:px-6 lg:flex lg:items-center lg:justify-between lg:px-8 lg:pb-8">
       <div class="mx-auto grid place-items-center">
         <label class="label">
           <span class="label-text text-xl font-bold pr-5">運動紀錄表</span>
@@ -127,13 +134,8 @@ const deleteUser = async (id) => {
           </div>
         </label>
         <div class="grid gap-2 lg:grid-flow-col">
-          <el-date-picker
-            v-model="newDate"
-            type="date"
-            format="YYYY/MM/DD"
-            value-format="YYYY-MM-DD"
-            placeholder="選擇日期"
-          />
+          <el-date-picker v-model="newDate" type="date" format="YYYY/MM/DD" value-format="YYYY-MM-DD"
+            placeholder="選擇日期" />
           <el-input type="text" placeholder="小筆記" v-model="newNote" class="w-fit" />
           <el-input type="text" placeholder="身高" v-model="newHeight" />
           <el-input type="text" placeholder="體重" v-model="newWeight" />
@@ -163,61 +165,31 @@ const deleteUser = async (id) => {
           <tr v-for="item in store.sortUserData" :key="item.date" class="hover">
             <td>
               <p v-if="!editStatus">{{ item.date }}</p>
-              <el-date-picker
-                v-if="editStatus"
-                v-model="item.date"
-                type="date"
-                placeholder="選擇日期"
-                format="YYYY/MM/DD"
-                value-format="YYYY-MM-DD"
-              />
+              <el-date-picker v-if="editStatus" v-model="item.date" type="date" placeholder="選擇日期" format="YYYY/MM/DD"
+                value-format="YYYY-MM-DD" />
             </td>
             <td>
               <p v-if="!editStatus">{{ item.note }}</p>
-              <el-input
-                v-if="editStatus"
-                class="max-w-fit"
-                type="text"
-                v-model="item.note"
-                placeholder="無"
-              />
+              <el-input v-if="editStatus" class="max-w-fit" type="text" v-model="item.note" placeholder="無" />
             </td>
             <td>
               <p v-if="!editStatus">{{ item.height }}</p>
-              <el-input
-                v-if="editStatus"
-                style="width: 55px"
-                type="text"
-                v-model="item.height"
-                placeholder="無"
-              />
+              <el-input v-if="editStatus" style="width: 55px" type="text" v-model="item.height" placeholder="無" />
             </td>
             <td>
               <p v-if="!editStatus">{{ item.weight }}</p>
-              <el-input
-                v-if="editStatus"
-                style="width: 55px"
-                type="text"
-                v-model="item.weight"
-                placeholder="無"
-              />
+              <el-input v-if="editStatus" style="width: 55px" type="text" v-model="item.weight" placeholder="無" />
             </td>
             <td>
               <el-button v-if="!editStatus" type="success" @click="editOrNot()">修改</el-button>
-              <el-button
-                v-if="editStatus"
-                type="success"
-                @click="updateUser(item.id, item.date, item.height, item.weight, item.note); editOrNot()"
-              >送出</el-button>
+              <el-button v-if="editStatus" type="success"
+                @click="updateUser(item.id, item.date, item.height, item.weight, item.note); editOrNot()">送出</el-button>
               <el-button type="danger" @click="deleteUser(item.id)">刪除</el-button>
             </td>
           </tr>
         </tbody>
       </table>
-      <div
-        v-if="store.UserData.length == 0"
-        class="text-center pt-9 italic text-gray-400 font-bold"
-      >※無資料※</div>
+      <div v-if="store.UserData.length == 0" class="text-center pt-9 italic text-gray-400 font-bold">※無資料※</div>
     </div>
   </div>
 </template>
